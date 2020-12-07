@@ -21,6 +21,16 @@
             </select>
         </div>
 
+        <!-- Direction -->
+        <div class="select" v-if="selected.route && selected.stop">
+            <label for="direction">Direction: </label>
+            <select id="direction" v-model="selected.direction">
+                <option v-for="(direction, index) in selected.route.attributes.direction_names" v-bind:value="index" :key="index">
+                    {{ direction }}
+                </option>
+            </select>
+        </div>
+
     </div>
 </template>
 
@@ -36,7 +46,6 @@ export default {
 		return {
             routes: [],
             stops: [],
-            directions: [],
             selected: {
                 route: null,
                 stop: null,
