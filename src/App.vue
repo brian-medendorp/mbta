@@ -52,10 +52,11 @@
 		<img id="loading" alt="Loading" v-if="loading" src="./assets/loading.svg">
 
         <!-- Prediction -->
-        <div class="prediction" v-if="prediction">
-            <label>Next predicted departure time:</label>
-            <div>
-                {{ moment(prediction.attributes.departure_time).format('MMMM Do YYYY, h:mm:ss a') }} ( {{ moment(prediction.attributes.departure_time).fromNow() }} )
+        <div class="prediction" v-if="predictions.length">
+            <label>Next predicted departure times:</label>
+            <div v-for="prediction in predictions" :key="prediction.id">
+                <span v-if="prediction.attributes.departure_time">{{ moment(prediction.attributes.departure_time).format('MMMM Do YYYY, h:mm:ss a') }} ( {{ moment(prediction.attributes.departure_time).fromNow() }} )</span>
+                <span v-if="!prediction.attributes.departure_time">Not applicable</span>
             </div>
         </div>
 
@@ -82,7 +83,7 @@ export default {
 		return {
             routes: [],
             stops: [],
-            prediction: null,
+            predictions: [],
             error: null,
             loading: false,
             selected: {
@@ -128,15 +129,15 @@ export default {
                 return; // not all selections made, so don't do anything
             }
             this.loading = true;
-            // get only the most immediate prediction with page[limit]=1 and sort=departure_time
-            var url = "https://api-v3.mbta.com/predictions?page%5Blimit%5D=1&sort=departure_time";
+            // get only the most immediate predictions with page[limit]=1 and sort=departure_time
+            var url = "https://api-v3.mbta.com/predictions?page%5Blimit%5D=3&sort=departure_time";
             url += "&filter%5Broute%5D=" + this.selected.route.id; // filter by route
             url += "&filter%5Bstop%5D=" + this.selected.stop.id; // filter by stop
             url += "&filter%5Bdirection_id%5D=" + this.selected.direction; // filter by direction
             this.$http.get(url).then((response) => {
                 this.loading = false;
                 if (response.data.data.length) {
-                    this.prediction = response.data.data[0];
+                    this.predictions = response.data.data;
                 } else {
                     this.error = "No prediction data could be found for the supplied selections."
                 }
@@ -145,14 +146,13 @@ export default {
                 this.error = error;
                 // NOTE: for some reason it looks like axios isn't processing the json data from the response to let us handle this better
             })
-            // TODO: handle edge cases where departure time is in the past -- will need to get more than one prediction at a time and compare timestamps
         },
         selectStop: function () {
             this.selected.direction = null;
             this.clearPrediction();
         },
         clearPrediction: function() {
-            this.prediction = null;
+            this.predictions = [];
             this.error = null;
         }
     },
