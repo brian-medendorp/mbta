@@ -42,7 +42,7 @@
 
         <!-- Prediction -->
         <div class="prediction" v-if="prediction">
-            Next predicted departure time: {{ prediction.attributes.departure_time }}
+            Next predicted departure time: {{ moment(prediction.attributes.departure_time).format('MMMM Do YYYY, h:mm:ss a') }} ( {{ moment(prediction.attributes.departure_time).fromNow() }} )
         </div>
 
     </div>
@@ -76,6 +76,7 @@ export default {
             })
         },
         getStops: function () {
+            this.clearPrediction();
             this.selected.direction = null;
             this.selected.stop = null // reset the selected stop
             this.stops = []; // reset the stops
@@ -88,7 +89,7 @@ export default {
             })
         },
         getPrediction: function () {
-            this.prediction = null; // reset the prediction
+            this.clearPrediction(); // reset the prediction
             if (!this.selected.route || !this.selected.stop || this.selected.direction === null ) {
                 return; // not all selections made, so don't do anything
             }
@@ -104,6 +105,10 @@ export default {
         },
         selectStop: function () {
             this.selected.direction = null;
+            this.clearPrediction();
+        },
+        clearPrediction: function() {
+            this.prediction = null;
         }
     },
     created: function () {
