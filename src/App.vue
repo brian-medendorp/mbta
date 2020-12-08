@@ -99,6 +99,9 @@ export default {
             this.$http.get('https://api-v3.mbta.com/routes?filter%5Btype%5D=0%2C1').then((response) => {
                 this.loading = false;
                 this.routes = response.data.data;
+            }).catch((error) => {
+                this.loading = false;
+                this.error = "Unable to get route data. " + error;
             })
         },
         getStops: function () {
@@ -114,6 +117,9 @@ export default {
             this.$http.get(url).then((response) => {
                 this.loading = false;
                 this.stops = response.data.data;
+            }).catch((error) => {
+                this.loading = false;
+                this.error = "Unable to get stop data. " + error;
             })
         },
         getPrediction: function () {
@@ -134,8 +140,10 @@ export default {
                 } else {
                     this.error = "No prediction data could be found for the supplied selections."
                 }
-
-                // TODO: handle edge cases where there is no departure time for the selected direction (i.e. end of line)
+            }).catch((error) => {
+                this.loading = false;
+                this.error = error;
+                // NOTE: for some reason it looks like axios isn't processing the json data from the response to let us handle this better
             })
             // TODO: handle edge cases where departure time is in the past -- will need to get more than one prediction at a time and compare timestamps
         },
@@ -182,7 +190,7 @@ label {
 
 }
 
-.select {
+.select, #loading {
     margin-top: 0.5em;
 }
 
