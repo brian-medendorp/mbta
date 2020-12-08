@@ -97,7 +97,7 @@ export default {
         getRoutes: function () {
             this.loading = true;
             // select only Light and Heavy Rail lines with ?filter[type]=0,1
-            this.$http.get('https://api-v3.mbta.com/routes?filter%5Btype%5D=0%2C1').then((response) => {
+            return this.$http.get('https://api-v3.mbta.com/routes?filter%5Btype%5D=0%2C1').then((response) => {
                 this.loading = false;
                 this.routes = response.data.data;
             }).catch((error) => {
@@ -115,7 +115,7 @@ export default {
             }
             this.loading = true;
             var url = "https://api-v3.mbta.com/stops?filter%5Broute%5D=" + this.selected.route.id;
-            this.$http.get(url).then((response) => {
+            return this.$http.get(url).then((response) => {
                 this.loading = false;
                 this.stops = response.data.data;
             }).catch((error) => {
@@ -134,7 +134,7 @@ export default {
             url += "&filter%5Broute%5D=" + this.selected.route.id; // filter by route
             url += "&filter%5Bstop%5D=" + this.selected.stop.id; // filter by stop
             url += "&filter%5Bdirection_id%5D=" + this.selected.direction; // filter by direction
-            this.$http.get(url).then((response) => {
+            return this.$http.get(url).then((response) => {
                 this.loading = false;
                 if (response.data.data.length) {
                     this.predictions = response.data.data;
