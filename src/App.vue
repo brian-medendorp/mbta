@@ -48,11 +48,22 @@
             </select>
         </div>
 
+        <!-- Loading indicator -->
+		<img id="loading" alt="Loading" v-if="loading" src="./assets/loading.svg">
+
         <!-- Prediction -->
         <div class="prediction" v-if="prediction">
             <label>Next predicted departure time:</label>
             <div>
                 {{ moment(prediction.attributes.departure_time).format('MMMM Do YYYY, h:mm:ss a') }} ( {{ moment(prediction.attributes.departure_time).fromNow() }} )
+            </div>
+        </div>
+
+        <!-- Error -->
+        <div class="prediction" v-if="error">
+            <label>Something went wrong</label>
+            <div>
+                {{ error }}
             </div>
         </div>
 
@@ -72,6 +83,8 @@ export default {
             routes: [],
             stops: [],
             prediction: null,
+            error: null,
+            loading: false,
             selected: {
                 route: null,
                 stop: null,
@@ -81,8 +94,10 @@ export default {
 	},
     methods: {
         getRoutes: function () {
+            this.loading = true;
             // select only Light and Heavy Rail lines with ?filter[type]=0,1
             this.$http.get('https://api-v3.mbta.com/routes?filter%5Btype%5D=0%2C1').then((response) => {
+                this.loading = false;
                 this.routes = response.data.data;
             })
         },
@@ -94,8 +109,10 @@ export default {
             if (!this.selected.route || !this.selected.route.id) {
                 return; // no route selected, so don't do anything
             }
+            this.loading = true;
             var url = "https://api-v3.mbta.com/stops?filter%5Broute%5D=" + this.selected.route.id;
             this.$http.get(url).then((response) => {
+                this.loading = false;
                 this.stops = response.data.data;
             })
         },
@@ -104,13 +121,20 @@ export default {
             if (!this.selected.route || !this.selected.stop || this.selected.direction === null ) {
                 return; // not all selections made, so don't do anything
             }
+            this.loading = true;
             // get only the most immediate prediction with page[limit]=1 and sort=departure_time
             var url = "https://api-v3.mbta.com/predictions?page%5Blimit%5D=1&sort=departure_time";
             url += "&filter%5Broute%5D=" + this.selected.route.id; // filter by route
             url += "&filter%5Bstop%5D=" + this.selected.stop.id; // filter by stop
             url += "&filter%5Bdirection_id%5D=" + this.selected.direction; // filter by direction
             this.$http.get(url).then((response) => {
-                this.prediction = response.data.data[0];
+                this.loading = false;
+                if (response.data.data.length) {
+                    this.prediction = response.data.data[0];
+                } else {
+                    this.error = "No prediction data could be found for the supplied selections."
+                }
+
                 // TODO: handle edge cases where there is no departure time for the selected direction (i.e. end of line)
             })
             // TODO: handle edge cases where departure time is in the past -- will need to get more than one prediction at a time and compare timestamps
@@ -121,6 +145,7 @@ export default {
         },
         clearPrediction: function() {
             this.prediction = null;
+            this.error = null;
         }
     },
     created: function () {
@@ -167,5 +192,9 @@ label {
 
 .prediction {
     margin-top: 2em;
+}
+
+#loading {
+    width: 30px;
 }
 </style>
