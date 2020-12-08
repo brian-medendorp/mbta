@@ -1,4 +1,8 @@
-# mbta
+# MBTA Departure Predictor (mbta)
+
+Example web application using the mbta API (https://api-v3.mbta.com/).
+
+Everything needed to build and run the application should work with the following npm commands, however if that does not work you may need to first install the Vue command line tool with `npm install -g @vue/cli`
 
 ## Project setup
 ```
