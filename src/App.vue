@@ -127,7 +127,7 @@ export default {
                 return; // not all selections made, so don't do anything
             }
             this.loading = true;
-            // get only the most immediate predictions with page[limit]=1 and sort=departure_time
+            // get only the most immediate predictions with page[limit]=3 and sort=departure_time
             var url = "https://api-v3.mbta.com/predictions?page%5Blimit%5D=3&sort=departure_time";
             url += "&filter%5Broute%5D=" + this.selected.route.id; // filter by route
             url += "&filter%5Bstop%5D=" + this.selected.stop.id; // filter by stop

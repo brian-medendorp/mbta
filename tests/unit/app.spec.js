@@ -31,10 +31,47 @@ describe('Mounted App', () => {
     })
 
     describe('getRoutes', () => {
-
         it('loads route data from API', async () => {
             await wrapper.vm.getRoutes()
             expect(wrapper.vm.routes.length).not.toBe(0)
+        })
+    })
+
+    describe('getStops', () => {
+        it('loads stop data from API', async () => {
+            await wrapper.vm.getRoutes()
+            wrapper.vm.selected.route = wrapper.vm.routes[0]
+            await wrapper.vm.getStops()
+            expect(wrapper.vm.stops.length).not.toBe(0)
+        })
+    })
+
+    describe('getPrediction', () => {
+        it('loads prediction data from API', async () => {
+            await wrapper.vm.getRoutes()
+            wrapper.vm.selected.route = wrapper.vm.routes[0]
+            await wrapper.vm.getStops()
+            wrapper.vm.selected.stop = wrapper.vm.stops[0]
+            wrapper.vm.selected.direction = 0
+            await wrapper.vm.getPrediction()
+            expect(wrapper.vm.predictions.length).not.toBe(0)
+        })
+    })
+
+    describe('selectStop', () => {
+        it('clears direction selection and prediction data when new stop selected', async () => {
+            await wrapper.vm.getRoutes()
+            wrapper.vm.selected.route = wrapper.vm.routes[0]
+            await wrapper.vm.getStops()
+            wrapper.vm.selected.stop = wrapper.vm.stops[0]
+            wrapper.vm.selected.direction = 0
+            await wrapper.vm.getPrediction()
+            expect(wrapper.vm.predictions.length).not.toBe(0)
+            expect(wrapper.vm.selected.direction).toBe(0)
+            wrapper.vm.selected.stop = wrapper.vm.stops[1]
+            wrapper.vm.selectStop()
+            expect(wrapper.vm.predictions.length).toBe(0)
+            expect(wrapper.vm.selected.direction).toBe(null)
         })
     })
 })
